@@ -1,0 +1,55 @@
+include "modarith.qcl";
+include "Discrete_Fourier_Transform.qcl";
+
+procedure shor(int number) {
+  int width=ceil(log(number,2));
+  qureg reg1[2*width];
+  qureg reg2[width];
+  int qmax=2^width;
+  int factor;
+  int m; real c;
+  int x;
+  int p; int q;
+  int a; int b;
+  int e;
+
+  if number mod 2 == 0 { exit "number must be odd"; }
+  if testprime(number) { exit "prime number"; }
+  if testprimepower(number) { exit "prime power"; };
+  {
+    {
+      x=floor(random()*(number-3))+2;
+    } until gcd(x,number)==1;
+    print "chosen random x =",x;
+    H(reg1);
+    expn(x,number,reg1,reg2);
+    measure reg2;
+    dft(reg1);
+    measure reg1,m;
+    reset;
+    if m==0 {
+      print "measured zero in 1st register. trying again ...";
+    } else {
+      c=m*0.5^(2*width);
+      q=denominator(c,qmax);
+      p=floor(q*c+0.5);
+      print "measured",m,", approximation for",c,"is",p,"/",q;
+      if q mod 2==1 and 2*q<qmax {
+        print "odd denominator, expanding by 2";
+        p=2*p; q=2*q;
+      }
+      if q mod 2==1 {
+        print "odd period. trying again ...";
+      } else {
+        print "possible period is",q;
+        e=powmod(x,q/2,number);
+        a=(e+1) mod number;
+        b=(e+number-1) mod number;
+        print x,"^",q/2,"+ 1 mod",number,"=",a,",",
+              x,"^",q/2,"- 1 mod",number,"=",b;
+        factor=max(gcd(number,a),gcd(number,b));
+      }
+    }
+  } until factor>1 and factor<number;
+  print number,"=",factor,"*",number/factor;
+}

@@ -1,0 +1,24 @@
+set library 1;
+
+cond qufunct flip(qureg q) { 
+  int i;
+  for i=0 to #q/2-1 {
+    Swap(q[i],q[#q-i-1]);
+  }
+}
+
+operator dft(qureg q) {
+  const n=#q;
+  int i; int j;
+  for i=1 to n {
+    for j=1 to i-1 {
+      V(pi/2^(i-j),q[n-i] & q[n-j]);
+//      if q[n-i] and q[n-j] { Phase(pi/2^(i-j)); }
+    }
+    H(q[n-i]);
+  }    
+  flip(q);
+}
+
+set library 0;
+

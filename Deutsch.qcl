@@ -1,0 +1,44 @@
+const rand1 = (random()>=0.5);
+const rand2 = (random()>=0.5);
+
+boolean f(boolean x)
+{
+  if rand1{return rand2;}
+  else {return x xor rand2;}
+}
+
+qufunct F(quvoid x,quvoid y)
+{
+  if not f(false) and f(true) {CNot(y,x);}
+  if f(false) and not f(true)
+  {
+    Not(x);
+    CNot(y,x);
+  }
+  if f(false) {Not(x);}
+}
+
+procedure deutsch()
+{
+  qureg x[1];
+  qureg y[1];
+  int m;
+  Not(y);
+  H(x & y);
+  F(x,y);
+  H(x);
+  measure x,m;
+  if rand1 {print "f(x) was actually constant";}
+  else {print "f(x) was actually balanced";}
+  if m==0
+  {
+    print "f(0) xor f(1) = 0";
+    print "f(x) is found to be constant";
+  }
+  else
+  {
+    print "f(0) xor f(1) = 1";
+    print "f(x) is found to be balanced";
+  }
+  reset;
+}

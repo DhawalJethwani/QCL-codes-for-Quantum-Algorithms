@@ -1,0 +1,96 @@
+operator oracle(qureg x,qureg y,int l)
+{
+  int i;
+  for i=0 to #x-1
+  {
+      if not bit(l,i)
+      {
+        Not(x[i]);
+      }
+  }
+  CNot(y,x);
+  for i=0 to #x-1
+  {
+    if not bit(l,i)
+    {
+      !Not(x[i]);
+    }
+  }
+}
+
+operator difmat(qureg x)
+{
+  int i;
+  int matrix m[2^#x];
+  H(x);
+  m[0,0]=1;
+  for i=1 to 2^#x-1
+  {
+    m[i,i]=-1;
+  }
+  Matrix(m,x);
+  H(x);
+}
+
+operator diffuse(qureg x)
+{
+  H(x);
+  Not(x);
+  CPhase(pi,x);
+  Not(x);
+  H(x);
+}
+
+procedure grover(int l)
+{
+  int n = floor(log(l,2))+1;
+  int m = floor(pi/4*sqrt(2^n));
+  int i;
+  int p;
+  qureg x[n];
+  qureg y[1];
+  print n,"qubits, using",m,"iterations";
+  {
+    reset;
+    H(x);
+    for i=1 to m
+    {
+      oracle(x,y,l);
+      CPhase(pi,y);
+      !oracle(x,y,l);
+      diffuse(x);
+      print "Iteration number",i,"completed.";
+    }
+    dump;
+    measure x,p;
+    print "measured",p;
+  } until p==l;
+  reset;
+}
+
+procedure groverMat(int l)
+{
+  int n = floor(log(l,2))+1;
+  int m = floor(pi/4*sqrt(2^n));
+  int i;
+  int p;
+  qureg x[n];
+  qureg y[1];
+  print n,"qubits, using",m,"iterations";
+  {
+    reset;
+    H(x);
+    for i=1 to m
+    {
+      oracle(x,y,l);
+      CPhase(pi,y);
+      !oracle(x,y,l);
+      difmat(x);
+      print "Iteration number",i,"completed.";
+    }
+    dump;
+    measure x,p;
+    print "measured",p;
+  } until p==l;
+  reset;
+}
